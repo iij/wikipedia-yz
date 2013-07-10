@@ -16,6 +16,7 @@ end
 NUM_WORKER = 8
 RPC_PORT=32768
 HOSTS ||= [{:host => "127.0.0.1", :pb_port => 8087}]
+BUCKET_NAME = "wikipedia"
 
 class WikiDump
   def open(filename, arg2)
@@ -131,7 +132,7 @@ class RiakUpload
   end
 
   def obj_put(key, value)
-    bucket = @rc.bucket("wikipedia")
+    bucket = @rc.bucket(OPTS[:bucket_name])
     #bucket.props = {:n_val => 1, :dw => 0}
     obj = Riak::RObject.new(bucket, key)
     #obj.content_type = "text/xml"
@@ -148,8 +149,10 @@ end
 
 OPTS = {}
 opt = OptionParser.new
+OPTS[:bucket_name] = BUCKET_NAME
 opt.on('-p [VAL]') {|v| OPTS[:num_worker] = v.to_i}
 opt.on('-s [VAL]') {|v| OPTS[:num_server] = v.to_i}
+opt.on('-b [VAL]') {|v| OPTS[:bucket_name] = v}
 
 opt.parse!(ARGV)
 OPTS[:path_filename] = ARGV.pop
